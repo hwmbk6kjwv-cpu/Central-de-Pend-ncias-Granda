@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Central de Pendências | Granda</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --blue: #163b73;
+      --blue2: #2357a3;
+      --pink: #e6428b;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --green: #10b981;
+      --gray: #64748b;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: white;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .header-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.5px; }
+    .subtitle { margin: 0; opacity: .88; font-size: 15px; }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s ease;
+      font-size: 14px;
+    }
+
+    button:hover { transform: translateY(-1px); opacity: .94; }
+    .btn-primary { background: var(--pink); color: white; }
+    .btn-light { background: rgba(255,255,255,.16); color: white; border: 1px solid rgba(255,255,255,.25); }
+    .btn-dark { background: var(--blue); color: white; }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-green { background: #dcfce7; color: #166534; }
+    .btn-muted { background: #eef2f7; color: #334155; }
+
+    main {
+      max-width: 1380px;
+      margin: 24px auto;
+      padding: 0 18px 60px;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+      color: var(--blue);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted);
+      margin: 12px 0 6px;
+      letter-spacing: .4px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--blue2);
+      box-shadow: 0 0 0 3px rgba(35,87,163,.12);
+    }
+
+    textarea { min-height: 95px; resize: vertical; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full { grid-column: 1 / -1; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat span { display: block; color: var(--muted); font-size: 13px; font-weight: 700; }
+    .stat strong { display: block; font-size: 30px; margin-top: 6px; color: var(--blue); }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filters input { max-width: 330px; }
+    .filters select { max-width: 220px; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .column {
+      background: #eef2f7;
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 360px;
+      border: 1px solid #dbe2ea;
+    }
+
+    .column-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .urgent { background: var(--red); }
+    .normal { background: var(--orange); }
+    .slow { background: var(--green); }
+    .done { background: var(--gray); }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--blue);
+      line-height: 1.25;
+    }
+
+    .meta {
+      display: grid;
+      gap: 5px;
+      font-size: 13px;
+      color: #374151;
+      margin-bottom: 9px;
+    }
+
+    .meta b { color: #111827; }
+    .desc {
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      margin: 8px 0;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .small-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    .finished-section { margin-top: 20px; }
+
+    .finished-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 20px 8px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      background: rgba(255,255,255,.5);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.52);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 22px;
+      width: min(720px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      padding: 20px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.25);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-header h2 { margin: 0; color: var(--blue); }
+
+    @media (max-width: 1100px) {
+      .top-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .board { grid-template-columns: 1fr; }
+      .finished-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      h1 { font-size: 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .filters input, .filters select { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>Central de Pendências Granda</h1>
+        <p class="subtitle">Controle online de solicitações, alterações, pendências e atividades extras por prioridade.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-light" onclick="exportCSV()">Exportar CSV</button>
+        <button class="btn-light" onclick="print()">Imprimir</button>
+              </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="top-grid">
+      <section class="panel">
+        <h2>Nova solicitação</h2>
+        <form id="requestForm">
+          <div class="form-row">
+            <div>
+              <label>Solicitante</label>
+              <input id="solicitante" required placeholder="Ex: João / Projetos" />
+            </div>
+            <div>
+              <label>Número da OS</label>
+              <input id="os" placeholder="Ex: OS 4587" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label>Setor solicitante</label>
+              <select id="setor">
+                <option>Projetos</option>
+                <option>Comercial</option>
+                <option>Produção</option>
+                <option>PCP</option>
+                <option>Instalação</option>
+                <option>Expedição</option>
+                <option>Logística</option>
+                <option>Compras</option>
+                <option>Diretoria</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div>
+              <label>Cliente</label>
+              <input id="cliente" placeholder="Ex: Bob's / BK / DAF" />
+            </div>
+          </div>
+
+          <label>Descrição da solicitação</label>
+          <textarea id="descricao" required placeholder="Descreva claramente a pendência, alteração ou atividade extra."></textarea>
+
+          <div class="form-row">
+            <div>
+              <label>Status / Prioridade</label>
+              <select id="prioridade">
+                <option value="Urgente">Urgente - no dia</option>
+                <option value="Normal">Normal - em uma semana</option>
+                <option value="Sem pressa">Sem pressa - 15 dias</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn-primary" style="width:100%; margin-top:16px;" type="submit">Adicionar solicitação</button>
+        </form>
+        <p class="footer-note">Dica de regra interna: nenhuma demanda extra deve ser executada se não estiver registrada nesta central.</p>
+      </section>
+
+      <section>
+        <div class="stats">
+          <div class="stat"><span>Urgentes</span><strong id="countUrgente">0</strong></div>
+          <div class="stat"><span>Normais</span><strong id="countNormal">0</strong></div>
+          <div class="stat"><span>Sem pressa</span><strong id="countSlow">0</strong></div>
+          <div class="stat"><span>Finalizadas</span><strong id="countDone">0</strong></div>
+        </div>
+
+        <div class="panel">
+          <div class="filters">
+            <input id="search" placeholder="Buscar por OS, cliente, solicitante ou descrição..." oninput="render()" />
+            <select id="filterSetor" onchange="render()">
+              <option value="">Todos os setores</option>
+              <option>Projetos</option>
+              <option>Comercial</option>
+              <option>Produção</option>
+              <option>PCP</option>
+              <option>Instalação</option>
+              <option>Expedição</option>
+              <option>Logística</option>
+              <option>Compras</option>
+              <option>Diretoria</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <div class="board">
+            <div class="column">
+              <div class="column-title">Urgente <span class="badge urgent">Hoje</span></div>
+              <div id="colUrgente"></div>
+            </div>
+            <div class="column">
+              <div class="column-title">Normal <span class="badge normal">7 dias</span></div>
+              <div id="colNormal"></div>
+            </div>
+            <div class="column">
+              <div class="column-title">Sem pressa <span class="badge slow">15 dias</span></div>
+              <div id="colSlow"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel finished-section">
+      <h2>Finalizadas</h2>
+      <div id="finishedGrid" class="finished-grid"></div>
+    </section>
+  </main>
+
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Editar solicitação</h2>
+        <button class="btn-muted" onclick="closeModal()">Fechar</button>
+      </div>
+      <form id="editForm">
+        <input type="hidden" id="editId" />
+        <div class="form-row">
+          <div>
+            <label>Solicitante</label>
+            <input id="editSolicitante" required />
+          </div>
+          <div>
+            <label>Número da OS</label>
+            <input id="editOs" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Setor</label>
+            <select id="editSetor">
+              <option>Projetos</option><option>Comercial</option><option>Produção</option><option>PCP</option><option>Instalação</option><option>Expedição</option><option>Logística</option><option>Compras</option><option>Diretoria</option><option>Outro</option>
+            </select>
+          </div>
+          <div>
+            <label>Cliente</label>
+            <input id="editCliente" />
+          </div>
+        </div>
+        <label>Descrição</label>
+        <textarea id="editDescricao" required></textarea>
+        <div class="form-row">
+          <div>
+            <label>Prioridade</label>
+            <select id="editPrioridade">
+              <option value="Urgente">Urgente</option>
+              <option value="Normal">Normal</option>
+              <option value="Sem pressa">Sem pressa</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-dark" style="width:100%; margin-top:16px;" type="submit">Salvar alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      doc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    /*
+      CONFIGURAÇÃO DO FIREBASE
+      1) Crie um projeto em https://console.firebase.google.com/
+      2) Adicione um app Web
+      3) Copie o firebaseConfig gerado pelo Firebase
+      4) Substitua os valores abaixo pelos dados reais do seu projeto
+    */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvmkq8W92sO6ehIb6rB9fvqn_rCwVsGQE",
+      authDomain: "controle-pendencias-d525e.firebaseapp.com",
+      projectId: "controle-pendencias-d525e",
+      storageBucket: "controle-pendencias-d525e.firebasestorage.app",
+      messagingSenderId: "526501414683",
+      appId: "1:526501414683:web:84370c06171ed8be94b5be",
+      measurementId: "G-671442F78R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const pendenciasRef = collection(db, "pendencias_granda");
+
+    let requests = [];
+
+    const prazoPorPrioridade = {
+      'Urgente': 'No dia',
+      'Normal': 'Em uma semana',
+      'Sem pressa': '15 dias'
+    };
+
+    function todayBR() {
+      return new Date().toLocaleString('pt-BR');
+    }
+
+    function escapeHTML(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    document.getElementById('requestForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const item = {
+        solicitante: document.getElementById('solicitante').value.trim(),
+        os: document.getElementById('os').value.trim(),
+        setor: document.getElementById('setor').value,
+        cliente: document.getElementById('cliente').value.trim(),
+        descricao: document.getElementById('descricao').value.trim(),
+        prioridade: document.getElementById('prioridade').value,
+        criadoEm: todayBR(),
+        criadoEmTimestamp: serverTimestamp(),
+        finalizado: false,
+        finalizadoEm: ''
+      };
+
+      try {
+        await addDoc(pendenciasRef, item);
+        this.reset();
+      } catch (error) {
+        alert('Não foi possível salvar no banco de dados. Confira a configuração do Firebase.');
+        console.error(error);
+      }
+    });
+
+    function matchesFilters(item) {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const setor = document.getElementById('filterSetor').value;
+      const haystack = [item.solicitante, item.os, item.setor, item.cliente, item.descricao].join(' ').toLowerCase();
+      return (!q || haystack.includes(q)) && (!setor || item.setor === setor);
+    }
+
+    function cardHTML(item, finished = false) {
+      const badgeClass = item.prioridade === 'Urgente' ? 'urgent' : item.prioridade === 'Normal' ? 'normal' : 'slow';
+      return `
+        <div class="card">
+          <h3>${escapeHTML(item.os ? item.os + ' — ' : '')}${escapeHTML(item.cliente || 'Sem cliente informado')}</h3>
+          <div class="meta">
+            <div><b>Solicitante:</b> ${escapeHTML(item.solicitante || '-')}</div>
+            <div><b>Setor:</b> ${escapeHTML(item.setor || '-')}</div>
+            <div><b>Prazo:</b> <span class="badge ${badgeClass}">${escapeHTML(item.prioridade)} / ${escapeHTML(prazoPorPrioridade[item.prioridade])}</span></div>
+            <div><b>Criado em:</b> ${escapeHTML(item.criadoEm)}</div>
+            ${finished ? `<div><b>Finalizado em:</b> ${escapeHTML(item.finalizadoEm || '-')}</div>` : ''}
+          </div>
+          <div class="desc">${escapeHTML(item.descricao || '-')}</div>
+          <div class="card-actions">
+            ${finished ? `<button class="small-btn btn-muted" onclick="reopenItem('${item.id}')">Reabrir</button>` : `<button class="small-btn btn-green" onclick="finishItem('${item.id}')">Finalizar</button>`}
+            <button class="small-btn btn-muted" onclick="openEdit('${item.id}')">Editar</button>
+            <button class="small-btn btn-danger" onclick="deleteItem('${item.id}')">Excluir</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      const open = requests.filter(i => !i.finalizado && matchesFilters(i));
+      const done = requests.filter(i => i.finalizado && matchesFilters(i));
+
+      const urgent = open.filter(i => i.prioridade === 'Urgente');
+      const normal = open.filter(i => i.prioridade === 'Normal');
+      const slow = open.filter(i => i.prioridade === 'Sem pressa');
+
+      document.getElementById('colUrgente').innerHTML = urgent.length ? urgent.map(i => cardHTML(i)).join('') : '<div class="empty">Nenhuma pendência urgente.</div>';
+      document.getElementById('colNormal').innerHTML = normal.length ? normal.map(i => cardHTML(i)).join('') : '<div class="empty">Nenhuma pendência normal.</div>';
+      document.getElementById('colSlow').innerHTML = slow.length ? slow.map(i => cardHTML(i)).join('') : '<div class="empty">Nenhuma pendência sem pressa.</div>';
+      document.getElementById('finishedGrid').innerHTML = done.length ? done.map(i => cardHTML(i, true)).join('') : '<div class="empty">Nenhuma solicitação finalizada ainda.</div>';
+
+      document.getElementById('countUrgente').textContent = requests.filter(i => !i.finalizado && i.prioridade === 'Urgente').length;
+      document.getElementById('countNormal').textContent = requests.filter(i => !i.finalizado && i.prioridade === 'Normal').length;
+      document.getElementById('countSlow').textContent = requests.filter(i => !i.finalizado && i.prioridade === 'Sem pressa').length;
+      document.getElementById('countDone').textContent = requests.filter(i => i.finalizado).length;
+    }
+
+    window.render = render;
+
+    window.finishItem = async function(id) {
+      try {
+        await updateDoc(doc(db, "pendencias_granda", id), {
+          finalizado: true,
+          finalizadoEm: todayBR()
+        });
+      } catch (error) {
+        alert('Não foi possível finalizar.');
+        console.error(error);
+      }
+    }
+
+    window.reopenItem = async function(id) {
+      try {
+        await updateDoc(doc(db, "pendencias_granda", id), {
+          finalizado: false,
+          finalizadoEm: ''
+        });
+      } catch (error) {
+        alert('Não foi possível reabrir.');
+        console.error(error);
+      }
+    }
+
+    window.deleteItem = async function(id) {
+      if (!confirm('Deseja excluir esta solicitação?')) return;
+      try {
+        await deleteDoc(doc(db, "pendencias_granda", id));
+      } catch (error) {
+        alert('Não foi possível excluir.');
+        console.error(error);
+      }
+    }
+
+    window.openEdit = function(id) {
+      const item = requests.find(i => i.id === id);
+      if (!item) return;
+      document.getElementById('editId').value = item.id;
+      document.getElementById('editSolicitante').value = item.solicitante || '';
+      document.getElementById('editOs').value = item.os || '';
+      document.getElementById('editSetor').value = item.setor || 'Projetos';
+      document.getElementById('editCliente').value = item.cliente || '';
+      document.getElementById('editDescricao').value = item.descricao || '';
+      document.getElementById('editPrioridade').value = item.prioridade || 'Normal';
+      document.getElementById('modalBg').style.display = 'flex';
+    }
+
+    window.closeModal = function() {
+      document.getElementById('modalBg').style.display = 'none';
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      try {
+        await updateDoc(doc(db, "pendencias_granda", id), {
+          solicitante: document.getElementById('editSolicitante').value.trim(),
+          os: document.getElementById('editOs').value.trim(),
+          setor: document.getElementById('editSetor').value,
+          cliente: document.getElementById('editCliente').value.trim(),
+          descricao: document.getElementById('editDescricao').value.trim(),
+          prioridade: document.getElementById('editPrioridade').value
+        });
+        closeModal();
+      } catch (error) {
+        alert('Não foi possível salvar a edição.');
+        console.error(error);
+      }
+    });
+
+    window.exportCSV = function() {
+      const headers = ['Solicitante','Setor','Cliente','OS','Descricao','Prioridade','Criado em','Finalizado','Finalizado em'];
+      const rows = requests.map(i => [i.solicitante, i.setor, i.cliente, i.os, i.descricao, i.prioridade, i.criadoEm, i.finalizado ? 'Sim' : 'Nao', i.finalizadoEm]);
+      const csv = [headers, ...rows].map(row => row.map(value => `"${String(value || '').replaceAll('"','""')}"`).join(';')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'central-pendencias-granda.csv';
+      link.click();
+    }
+
+    const q = query(pendenciasRef, orderBy('criadoEmTimestamp', 'desc'));
+    onSnapshot(q, (snapshot) => {
+      requests = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
+      render();
+    }, (error) => {
+      console.error(error);
+      alert('Erro ao carregar dados do Firebase. Confira se o Firestore foi criado e se as regras permitem acesso.');
+    });
+  </script>
+</body>
+</html>
